@@ -46,7 +46,7 @@ extern "C"
  */
 /*********************************************************  tuya  *********************************************************/
 #define TUYA_DEVICE_PID         "eq1ebzwt"
-#define TUYA_DEVICE_DID         "tuya3c9983a10a0a"                 //16Byte
+#define TUYA_DEVICE_DID         "tuya3c9983a10a0a"                 //16Byte 
 #define TUYA_DEVICE_AUTH_KEY    "fYUftqd2K2mq1BuMs9dYr7tGWg4zloy5" //32Byte
 
 #define TUYA_DEVICE_FIR_NAME    "tuya_ble_lock_common_nRF52832"    //固件标识名
