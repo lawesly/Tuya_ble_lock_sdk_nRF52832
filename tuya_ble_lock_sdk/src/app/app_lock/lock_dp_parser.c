@@ -529,7 +529,8 @@ FN:
 */
 static uint32_t open_meth_freeze_or_unfreeze_handler(void* cmd_dp_data, uint8_t freeze_state)
 {
-    uint32_t hardid = *((uint32_t*)cmd_dp_data);
+    uint8_t* phardid = cmd_dp_data;
+    uint32_t hardid = (phardid[0]<<24) + (phardid[1]<<16) + (phardid[2]<<8) + phardid[3];
     return lock_hard_freezeorunfreeze(hardid, freeze_state);
 }
 
@@ -538,7 +539,8 @@ FN:
 */
 static uint32_t user_freeze_or_unfreeze_handler(void* cmd_dp_data, uint8_t freeze_state)
 {
-    uint32_t memberid = *((uint32_t*)cmd_dp_data);
+    uint8_t* pmemberid = cmd_dp_data;
+    uint32_t memberid = (pmemberid[0]<<24) + (pmemberid[1]<<16) + (pmemberid[2]<<8) + pmemberid[3];
     return lock_hard_freezeorunfreeze_all_by_memberid(memberid, freeze_state);
 }
 
@@ -848,7 +850,6 @@ static uint32_t temp_pw_modify_handler(void* cmd_dp_data, void* rsp_dp_data, uin
 /*********************************************************
 FN: 
 */
-#define OPEN_WITH_NOPWD_REMOTE_KEY "nopwd_remote"
 static uint32_t open_with_nopwd_remote_setkey_handler(void* cmd_dp_data, void* rsp_dp_data, uint8_t* rsp_dp_data_len)
 {
     open_with_nopwd_remote_setkey_t* cmd = cmd_dp_data;
@@ -903,14 +904,22 @@ static uint32_t open_with_nopwd_remote_handler(void* cmd_dp_data, void* rsp_dp_d
         APP_DEBUG_PRINTF("OPEN_WITH_NOPWD_REMOTE fail id: %d", rsp->result);
     }
     else {
-        APP_DEBUG_PRINTF("OPEN_WITH_NOPWD_REMOTE success");
-        
-        lock_open_record_report(OR_LOG_OPEN_WITH_NOPWD_REMOTE, set_cmd.memberid);
-        
-        set_cmd.valid_num--;
-        app_port_kv_set(OPEN_WITH_NOPWD_REMOTE_KEY, &set_cmd, sizeof(open_with_nopwd_remote_setkey_t));
-        
-        rsp->result = 0x00;
+        if(lock_open_with_nopwd_remote() == APP_PORT_SUCCESS) {
+            if(cmd->type == 0x01) {
+                lock_open_record_report_with_delay(OR_LOG_OPEN_WITH_REMOTE_PHONE, cmd->memberid);
+            } else if(cmd->type == 0x02){
+                lock_open_record_report_with_delay(OR_LOG_OPEN_WITH_REMOTE_VOICE, cmd->memberid);
+            }
+            
+            APP_DEBUG_PRINTF("OPEN_WITH_NOPWD_REMOTE success");
+            
+            set_cmd.valid_num--;
+            app_port_kv_set(OPEN_WITH_NOPWD_REMOTE_KEY, &set_cmd, sizeof(open_with_nopwd_remote_setkey_t));
+            
+            rsp->result = 0x00; //open success
+        } else {
+            rsp->result = 0x01; //open fail
+        }
     }
     
     *rsp_len = sizeof(open_with_nopwd_remote_result_t);

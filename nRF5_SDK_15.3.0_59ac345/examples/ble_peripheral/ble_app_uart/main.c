@@ -137,6 +137,7 @@ int main(void)
     //lock init
     nrfs_uart_init();
     lock_common_init();
+    nrfs_init_bt_mac_addr();
     
     //start
     nrfs_adv_start();

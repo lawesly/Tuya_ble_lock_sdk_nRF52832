@@ -279,6 +279,21 @@ ret_code_t nrfs_disconnect(uint16_t conn_handle, uint8_t hci_status_code)
 /*********************************************************
 FN: 
 */
+void nrfs_init_bt_mac_addr(void)
+{
+    //set bt addr
+    uint8_t tmp_mac_str[APP_PORT_BLE_ADDR_STR_LEN] = APP_PORT_DEFAULT_MAC_ADDR_STR;
+    uint8_t mac[APP_PORT_BLE_ADDR_LEN];
+    app_port_kv_get("mac_str", tmp_mac_str, APP_PORT_BLE_ADDR_STR_LEN);
+    if(app_port_string_op_hexstr2hex(tmp_mac_str, APP_PORT_BLE_ADDR_STR_LEN, mac) == 1)
+    {
+        app_port_set_bt_mac_addr(mac);
+    }
+}
+
+/*********************************************************
+FN: 
+*/
 ret_code_t nrfs_set_bt_mac_addr(uint8_t *addr)
 {
     ret_code_t err_code;
