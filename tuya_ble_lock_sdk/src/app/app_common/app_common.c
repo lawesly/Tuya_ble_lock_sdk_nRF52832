@@ -55,15 +55,6 @@ void app_common_init(void)
     //register tuya_ble_sdk callback
     app_port_ble_callback_queue_register(app_common_tuya_ble_sdk_callback);
     
-    //set bt addr
-    uint8_t tmp_mac_str[APP_PORT_BLE_ADDR_STR_LEN] = APP_PORT_DEFAULT_MAC_ADDR_STR;
-    uint8_t mac[APP_PORT_BLE_ADDR_LEN];
-    app_port_kv_get("mac_str", tmp_mac_str, APP_PORT_BLE_ADDR_STR_LEN);
-    if(app_port_string_op_hexstr2hex(tmp_mac_str, APP_PORT_BLE_ADDR_STR_LEN, mac) == 1)
-    {
-        app_port_set_bt_mac_addr(mac);
-    }
-    
     app_test_init();
     app_ota_init();
 }
@@ -80,7 +71,6 @@ static void app_common_tuya_ble_sdk_callback(tuya_ble_cb_evt_param_t* param)
         case TUYA_BLE_CB_EVT_CONNECTE_STATUS: {
             if(param->connect_status == BONDING_CONN) {
                 APP_DEBUG_PRINTF("bonding and connecting");
-                lock_timer_start(LOCK_TIMER_BONDING_CONN);
                 lock_timer_stop(LOCK_TIMER_CONN_MONITOR);
             }
         } break;
@@ -114,6 +104,7 @@ static void app_common_tuya_ble_sdk_callback(tuya_ble_cb_evt_param_t* param)
             APP_DEBUG_PRINTF("TUYA_BLE_CB_EVT_TIME_STAMP - time_zone: %d", param->timestamp_data.time_zone);
             APP_DEBUG_PRINTF("TUYA_BLE_CB_EVT_TIME_STAMP - timestamp: %d", param->timestamp_data.timestamp);
             app_port_update_timestamp(param->timestamp_data.timestamp);
+            lock_timer_start(LOCK_TIMER_BONDING_CONN);
         } break;
         
         //unbond

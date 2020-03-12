@@ -62,6 +62,7 @@ void nrfs_gap_params_init(void);
 void nrfs_gatt_init(void);
 
 ret_code_t nrfs_disconnect(uint16_t conn_handle, uint8_t hci_status_code);
+void nrfs_init_bt_mac_addr(void);
 ret_code_t nrfs_set_bt_mac_addr(uint8_t *addr);
 ret_code_t nrfs_get_bt_mac_addr(uint8_t *addr, uint8_t len);
 uint16_t get_m_conn_handle(void);
